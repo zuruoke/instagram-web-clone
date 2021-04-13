@@ -27,7 +27,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       elevation: 1.4,
     );
   }
-  topScreen1(){
+
+
+  topScreen(){
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,71 +56,77 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             Text('zuruokeokafor', style: TextStyle(fontSize: 30),),
           SizedBox(height: 10,),
-          TextButton(
+          Container(
+            width: 300, height: 30,
+            child: TextButton(
             style: TextButton.styleFrom(
               elevation: 1.6,
               backgroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5.0),
-                side: BorderSide(color:Colors.black)
-              ),
-            ),
+                    borderRadius: BorderRadius.circular(5.0),
+                    side: BorderSide(color: Colors.grey)
+            ),),
             onPressed: null,
-            child: Text('Edit Profile', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
+            child: Text('Edit Profile', style: TextStyle(
+              fontWeight: FontWeight.bold, 
+              fontSize: 20, color: 
+              Colors.black),),
           )
+          )
+          
           ],
         )
       ],
-        )
+        ),
+      SizedBox(height: 30,),
+      Padding(
+        padding: EdgeInsets.only(left: 30),
+        child: Text('Okafor Zuruoke', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),)),
+      SizedBox(height: 10,),
+      Padding(
+        padding: EdgeInsets.only(left: 30),
+      child: Text('Entrepreneur', style: TextStyle(color: Colors.grey, fontSize: 16),),),
+      SizedBox(height: 5,),
+      Padding(
+        padding: EdgeInsets.only(left: 30),
+      child: Text("- Engineer\n\- Entrepreneur\n- Content Creator\n- Product Designer\n- Knowledge Seeker\n- I know my son gonna be here, so I'mma make this life \nlegendary", 
+            style: TextStyle( fontSize: 17),),),
+      SizedBox(height: 20,),
+      Divider(thickness: 0.24, color: Colors.black,),
+      SizedBox(height: 10,),
+      Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        Text('12.5k', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
+        Text('36M', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
+        Text("  3954", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),)
+      ],
+    ),
+    Padding(padding: EdgeInsets.only(top:5)),
+      Row(
+         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        Text('    posts'), 
+        Text(' followers'),
+        Text('following')
+      ]
+      ),
+      
+      Divider(thickness: 0.24, color: Colors.black,)
       ],
     );
   }
 
-  topScreen(){
-    Size mq = MediaQuery.of(context).size;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
+  buildFollowersCount(){
+    return Container(
+      child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        SizedBox(width: 25,),
-        Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          height: 100, width: 100,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.black
-          ),
-        ),
-        SizedBox(height: 30,),
-        Text('Okafor Zuruoke', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),),
-        SizedBox(height: 10,),
-        Text('Entrepreneur', style: TextStyle(color: Colors.grey, fontSize: 16),),
-        SizedBox(height: 5,),
-        Text("- Engineer\n\- Entrepreneur\n- Content Creator\n- Product Designer\n- Knowledge Seeker\n- I know my son gonna be here, so I'mma make this life \nlegendary", 
-            style: TextStyle( fontSize: 17),),
+        Text('12', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
+        Text('36', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
+        Text("54", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),)
       ],
-        ),
-        SizedBox(width: 10,),
-        Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text('zuruokeokafor', style: TextStyle(fontSize: 25),),
-          SizedBox(height: 10,),
-          TextButton(
-            onPressed: null,
-            child: Text('Edit Profile', style: TextStyle(fontWeight: FontWeight.bold),),
-          )
-        ],
-        )
-      ],
-    );
+    ));
   }
 
   @override
@@ -132,7 +140,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 30,),
-            topScreen1(),
+            topScreen(),
           ],
         ),
         ),
