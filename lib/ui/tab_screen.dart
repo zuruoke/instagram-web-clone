@@ -44,7 +44,7 @@ class _TabScreenState extends State<TabScreen>{
       super.dispose();
     }
 
-    _buildModalSheet(context){
+    buildModalSheet(context){
       showModalBottomSheet(
             context: context,
             builder: (builder){
@@ -88,10 +88,7 @@ class _TabScreenState extends State<TabScreen>{
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.home_filled, size: 35, color: _selected == 0 ? Colors.black : Colors.grey)),
           BottomNavigationBarItem(icon: Icon(Icons.search_sharp, size: 35, color: _selected == 1 ? Colors.black : null)),
-          BottomNavigationBarItem(
-            icon: IconButton(
-                  onPressed: null,
-                  icon: Icon(Icons.add_box_outlined, size: 40, color: _selected == 2 ? Colors.black : null))),
+          BottomNavigationBarItem(icon: Icon(Icons.add_box_outlined, size: 40, color: _selected == 2 ? Colors.black : null)),
           BottomNavigationBarItem(icon: _selected == 3 ? Icon(Icons.favorite_sharp, size:35, color: Colors.black,) : Icon(Icons.favorite_border_sharp,size:35)),
           BottomNavigationBarItem(icon: Icon(Icons.account_circle_sharp, size: 35, color: _selected == 4 ? Colors.black : null)),
           
