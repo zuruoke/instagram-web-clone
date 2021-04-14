@@ -82,7 +82,11 @@ class _HomeScreenState extends State<HomeScreen> {
           width: 80, height: 80,
           decoration: BoxDecoration(
             color: Colors.grey,
-            shape: BoxShape.circle
+            shape: BoxShape.circle,
+            border: Border.all(
+              width: 2,
+              color: Colors.deepOrange
+            )
           ),
     ),
     SizedBox(height: 15,),

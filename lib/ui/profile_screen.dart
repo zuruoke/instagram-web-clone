@@ -8,6 +8,8 @@ class ProfileScreen extends StatefulWidget{
 
 class _ProfileScreenState extends State<ProfileScreen> {
 
+  String selected = 'grid';
+
   _buildAppBar(){
     return AppBar(
       leading: IconButton(
@@ -57,7 +59,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Text('zuruokeokafor', style: TextStyle(fontSize: 30),),
           SizedBox(height: 10,),
           Container(
-            width: 300, height: 30,
+            width: 280, height: 30,
             child: TextButton(
             style: TextButton.styleFrom(
               elevation: 1.6,
@@ -111,22 +113,155 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Text('following')
       ]
       ),
-      
-      Divider(thickness: 0.24, color: Colors.black,)
+      SizedBox(height: 10,),
+      Divider(thickness: 0.24, color: Colors.black,),
+      SizedBox(height: 2,),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          IconButton(
+          icon: Icon(Icons.grid_on_sharp, size: 30, color: selected == 'grid' ? Colors.blue : null), 
+          onPressed: (){
+            setState(() { 
+              selected = 'grid';
+             });
+          }
+          ),
+          IconButton(
+          icon: Icon(Icons.crop_square_sharp, size: 30, color: selected == 'list' ? Colors.blue : null,), 
+          onPressed: (){
+            setState(() { 
+              selected = 'list';
+             });
+          }
+          ),
+          IconButton(
+          icon: Icon(Icons.shopping_bag_rounded, size: 30,), 
+          onPressed: null
+          ),
+          IconButton(
+          icon: Icon(Icons.portrait_outlined, size: 30,), 
+          onPressed: null
+          ),
+        ],
+      ),
+      //Divider(thickness: 0.24, color: Colors.black,),
+      SizedBox(height: 12,),
+      selected == 'grid' ? gridStyle() : selected == 'list' ? listStyle() : Container()
       ],
     );
   }
 
-  buildFollowersCount(){
-    return Container(
-      child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  listStyle(){
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('12', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
-        Text('36', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
-        Text("54", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),)
+        Divider(thickness: 0.24, color: Colors.black,),
+        listContentScreen("zuruokeokafor"),
+        SizedBox(height: 40,),
+        listContentScreen("zuruokeokafor"),
+        SizedBox(height: 40,),
+        listContentScreen("zuruokeokafor"),
+        SizedBox(height: 40,),
+        listContentScreen("zuruokeokafor"),
+        SizedBox(height: 40,),
+        listContentScreen("zuruokeokafor"),
+        SizedBox(height: 40,),
       ],
-    ));
+    );
+  }
+
+  gridStyle(){
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        bodyContents(),
+        SizedBox(height: 2,),
+        bodyContents(),
+        SizedBox(height: 2,),
+        bodyContents(),
+        SizedBox(height: 2,),
+        bodyContents(),
+        SizedBox(height: 2,),
+      ],
+    );
+  }
+
+  bodyContents(){
+    Size mq = MediaQuery.of(context).size;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+           width: 0.330 * mq.width,
+          height: 160,
+          decoration: BoxDecoration(
+            color: Colors.black
+          ),
+        ),
+        SizedBox(width: 2,),
+         Container(
+           width: 0.330 * mq.width,
+          height: 160,
+          decoration: BoxDecoration(
+            color: Colors.black
+          ),
+        ),
+         SizedBox(width: 2,),
+         Container(
+           width: 0.332 * mq.width,
+          height: 160,
+          decoration: BoxDecoration(
+            color: Colors.black
+          ),
+        ),
+      ],
+    );
+  }
+
+  listContentScreen(String text ){
+    return Column(
+       children: [
+            ListTile(
+              leading: 
+                Padding(padding: EdgeInsets.only(left: 10),
+                child: CircleAvatar(backgroundColor: Colors.black),
+              ),
+              title: Text(text),
+              trailing: IconButton(
+                icon: Icon(Icons.linear_scale_sharp, color: Colors.black,),
+                onPressed: (){},
+              ),
+            ),
+            SizedBox(height: 15,),
+            Container(
+              height: 300,
+              decoration: BoxDecoration(
+                color: Colors.black
+              ),
+            ),
+            //SizedBox(height: 5,),
+            ListTile(
+              leading: IconButton(
+                icon: Icon(Icons.favorite_border_outlined, 
+                          size: 30, color: Colors.black,), 
+                onPressed: null),
+              title: Row( children: [ 
+                  IconButton(
+                    icon: Icon(Icons.messenger_outline_sharp,
+                               size: 30, color: Colors.black,), 
+                    onPressed: null)]),
+              trailing: IconButton(
+                onPressed: null,
+                icon: Icon(Icons.system_update_tv_rounded, 
+                  color: Colors.black , size:30),
+              ),
+            ),
+      ],
+    );
   }
 
   @override
