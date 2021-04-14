@@ -136,20 +136,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
           }
           ),
           IconButton(
-          icon: Icon(Icons.shopping_bag_rounded, size: 30,), 
-          onPressed: null
+          icon: Icon(Icons.shopping_bag_rounded, size: 30, color: selected == 'save' ? Colors.blue : null,), 
+          onPressed: (){
+            setState(() {
+              selected = 'save'; 
+            });
+          }
           ),
           IconButton(
-          icon: Icon(Icons.portrait_outlined, size: 30,), 
-          onPressed: null
+          icon: Icon(Icons.portrait_outlined, size: 30, color: selected == 'photosOfYou' ? Colors.blue : null,), 
+          onPressed: (){
+            setState(() {
+              selected = 'photosOfYou';  
+            });
+          }
           ),
         ],
       ),
       //Divider(thickness: 0.24, color: Colors.black,),
       SizedBox(height: 12,),
-      selected == 'grid' ? gridStyle() : selected == 'list' ? listStyle() : Container()
+      selected == 'grid' ? gridStyle() : 
+      selected == 'list' ? listStyle() : 
+      selected == 'save' ? saveLayout() :
+      selected == 'photosOfYou' ? photosOfYouLayout() :
+      Container()
       ],
     );
+  }
+
+  photosOfYouLayout(){
+    return Container();
+  }
+
+  saveLayout(){
+    return Container();
   }
 
   listStyle(){
