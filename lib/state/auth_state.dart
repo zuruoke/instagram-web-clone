@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:instagram_clone/state/app_state.dart';
-import 'package:instagram_clone/ui/utils/enum.dart';
-import 'package:instagram_clone/ui/utils/http_exception.dart';
+import 'package:instagram_clone/utils/enum.dart';
+import 'package:instagram_clone/utils/http_exception.dart';
 
 class AuthState extends AppState{
   final FirebaseAuth _auth = FirebaseAuth.instance;
