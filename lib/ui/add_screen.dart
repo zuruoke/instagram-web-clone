@@ -10,7 +10,7 @@ class _AddScreenState extends State<AddScreen> {
   @override
   Widget build(BuildContext context){
     return Center(
-      child: Text('data_AddScreen'),
+      child: Text('data_AddScreens'),
     );
   }
 }
