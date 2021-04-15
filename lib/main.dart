@@ -1,6 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:instagram_clone/state/app_state.dart';
 import 'package:instagram_clone/state/auth_state.dart';
+import 'package:instagram_clone/ui/login_screen.dart';
 import 'package:instagram_clone/ui/tab_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +18,26 @@ class InstagramCloneApp extends StatefulWidget{
 }
 
 class _InstagramCloneAppState extends State<InstagramCloneApp> {
+  String uid;
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  getUserUid() async {
+    User user = _auth.currentUser;
+    if (user != null) {
+      setState(() {
+        uid = user.uid;
+      });
+    }
+  }
+
+  @override
+  void initState() { 
+    //getUserUid();
+    super.initState();
+    
+  }
+
 
   @override
   Widget build(BuildContext context){
@@ -30,7 +52,8 @@ class _InstagramCloneAppState extends State<InstagramCloneApp> {
       theme: ThemeData(
         primaryColor: Colors.white,
       ),
-      home: TabScreen(),
+      home: LoginScreen()
+      //uid != null ? TabScreen() : Container(child: Center(child: Text('Log in Please', style: TextStyle(fontSize: 25),),),) ,
     ));
   } 
 

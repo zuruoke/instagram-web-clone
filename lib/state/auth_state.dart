@@ -3,10 +3,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:instagram_clone/state/app_state.dart';
 import 'package:instagram_clone/utils/enum.dart';
 import 'package:instagram_clone/utils/http_exception.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthState extends AppState{
   final FirebaseAuth _auth = FirebaseAuth.instance;
   AuthStatus authStatus;
+  final GoogleSignIn googleSignIn = GoogleSignIn();
 
   Future<void> signInWithEmailAndPassword(BuildContext context, String email, String password) async{
     try {
@@ -23,6 +25,7 @@ class AuthState extends AppState{
       }
       loading = false;
       }
+
   Future<void> signUpWithEmailAndPassword(BuildContext context, String email, String password, String args) async{
     try {
       loading = true;
@@ -37,6 +40,34 @@ class AuthState extends AppState{
       throw HttpException(error.toString());
     }
     loading = false;
+  }
+
+  Future<void> signOutWithEmailAndPassword() async{
+    await _auth.signOut();
+    authStatus = AuthStatus.Not_Logged_In;
+  }
+
+  Future<void> sigInWithGoogle() async {
+    GoogleAuthProvider authProvider = GoogleAuthProvider();
+    try {
+      loading = true;
+      final UserCredential userCredential = await _auth.signInWithPopup(authProvider);
+      User user = userCredential.user;
+
+      if (user != null){
+        authStatus = AuthStatus.Logged_In;
+      }
+
+    } catch (error){
+
+    }
+     loading = false;
+  }
+
+  Future<void> signOutWithGoogle() async{
+    await googleSignIn.signOut();
+    await _auth.signOut();
+    authStatus = AuthStatus.Not_Logged_In;
   }
 
   }
