@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:instagram_clone/ui/signup_screen.dart';
 
 class LoginScreen extends StatefulWidget{
   _LoginScreenState createState() => _LoginScreenState();
@@ -71,7 +72,8 @@ class _LoginScreenState extends State<LoginScreen>{
         SizedBox(height: 20,),
         loginWithGoogle(),
         SizedBox(height: 20,),
-        resetPassword()
+        resetPassword(),
+
         ],
       ),
         ),
@@ -127,12 +129,44 @@ class _LoginScreenState extends State<LoginScreen>{
             child: InkWell(
                autofocus: true,
               focusColor: Colors.deepPurpleAccent,
-             child: Text('Sign Up', style: TextStyle(color: Colors.deepPurpleAccent),),
-            onTap: (){},
+             child: Text('Sign Up', style: TextStyle(color: Colors.blue),),
+            onTap: (){
+              Navigator.push(context, MaterialPageRoute(builder: (ctx) => SignUpScreen()));
+            },
             ),),
           ],
         )
       ),
+    );
+  }
+  getTheApp(){
+    return Column(
+      children: [
+        Text('Get the app'),
+        SizedBox(height: 15),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: 90),
+              child: Image(
+              image: 
+                  NetworkImage('https://img.pngio.com/app-store-logopng-low-emission-zone-brussels-app-store-png-4491_1552.png'
+                ),
+                width: 150, height: 50,
+
+                  )),
+            Padding(
+              padding: EdgeInsets.only(left: 10, right: 80),
+            child: Image(
+              image: NetworkImage('https://miro.medium.com/max/4000/1*OIIv4FEjJQMqh-zEPhtlYA.png'),
+              width: 150, height: 50,
+              ))
+           //Image(image: AssetImage('assets/images/apple.png')),
+           //Image(image: AssetImage('assets/images/google.png')),
+          ],
+        )
+      ],
     );
   }
 
@@ -184,6 +218,49 @@ class _LoginScreenState extends State<LoginScreen>{
           );
   }
 
+  footer(){
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(left: 20, right: 20),
+          child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Text('About'),Text('Blogs'),Text('Jobs'),Text('Help'),Text('API'),Text('Privacy'),Text('Terms'), Text('Top Accounts')
+          ],
+        )),
+        Padding(
+          padding: EdgeInsets.only(left: 40, right: 40, top: 15),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Hashtags  '), Text("  Locations")
+            ],
+          ),
+        ),
+         Padding(
+          padding: EdgeInsets.only(left: 20, right: 20, top: 15),
+          child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Text('Beauty'),Text('Dance & Performance'),Text('Fitness'),Text('Food & Drinks'),Text('Home & Garden'),
+          ],
+        )),
+        Padding(
+          padding: EdgeInsets.only(left: 40, right: 40, top: 15),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Music  '), Text("  Visual Arts")
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -194,6 +271,10 @@ class _LoginScreenState extends State<LoginScreen>{
             contentScreen(),
             SizedBox(height: 20,),
             signUpContent(),
+            SizedBox(height: 40,),
+            getTheApp(),
+            SizedBox(height: 20,),
+            footer()
           ],
         ),
       )

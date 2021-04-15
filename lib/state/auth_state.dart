@@ -4,11 +4,13 @@ import 'package:instagram_clone/state/app_state.dart';
 import 'package:instagram_clone/utils/enum.dart';
 import 'package:instagram_clone/utils/http_exception.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AuthState extends AppState{
   final FirebaseAuth _auth = FirebaseAuth.instance;
   AuthStatus authStatus;
   final GoogleSignIn googleSignIn = GoogleSignIn();
+  final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
 
   Future<void> signInWithEmailAndPassword(BuildContext context, String email, String password) async{
     try {
@@ -33,6 +35,7 @@ class AuthState extends AppState{
       User user = userCredential.user;
       if (user != null){
         authStatus = AuthStatus.Logged_In;
+        saveUserInfo(uid: user.uid, email: email, username: args);
       }
 
     } catch(error){
@@ -68,6 +71,16 @@ class AuthState extends AppState{
     await googleSignIn.signOut();
     await _auth.signOut();
     authStatus = AuthStatus.Not_Logged_In;
+  }
+
+  void saveUserInfo({String uid, String username, String email}){
+    final userRef = _firebaseFirestore.collection('users').doc(uid);
+    userRef.set({
+        'id': uid,
+        'email': email,
+        'username': username,
+
+    });
   }
 
   }
