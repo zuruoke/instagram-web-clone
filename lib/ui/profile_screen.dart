@@ -2,6 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ProfileScreen extends StatefulWidget{
+  final String currentUserId;
+
+  ProfileScreen({this.currentUserId});
 
   _ProfileScreenState createState() => _ProfileScreenState();
 }

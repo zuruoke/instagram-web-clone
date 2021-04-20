@@ -1,6 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:instagram_clone/ui/signup_screen.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:instagram_clone/state/auth_state.dart';
+import 'package:instagram_clone/ui/auth_ui/signup_screen.dart';
+import 'package:instagram_clone/ui/tab_screen.dart';
+import 'package:instagram_clone/utils/enum.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget{
   _LoginScreenState createState() => _LoginScreenState();
@@ -9,7 +14,25 @@ class LoginScreen extends StatefulWidget{
 
 class _LoginScreenState extends State<LoginScreen>{
 
+  TextEditingController emailController;
+  TextEditingController passwordController;
+
+  @override
+  void initState() { 
+    emailController = TextEditingController();
+    passwordController = TextEditingController();
+    super.initState();
+    
+  }
+
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
   contentScreen(){
+    var state = Provider.of<AuthState>(context, listen: true);
     Size mq = MediaQuery.of(context).size;
     return Padding(
       padding: EdgeInsets.only(left: 0.15 * mq.width, right: 0.15 * mq.width, top: 30,),
@@ -32,9 +55,9 @@ class _LoginScreenState extends State<LoginScreen>{
               TextStyle(
                 fontSize: 35, fontStyle: FontStyle.italic, color: Colors.black
               )),
-        entryField(40),
-        entryField(5),
-        loginButton(),
+        entryField(40, emailController),
+        entryField(5, passwordController),
+        state.isLoading ? SpinKitPouringHourglass( color: Colors.blue,) : loginButton(),
         SizedBox(height: 30,),
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -101,9 +124,22 @@ class _LoginScreenState extends State<LoginScreen>{
       autofocus: true,
       focusColor: Colors.deepPurpleAccent,
       child: Text('Log in with Google', style: TextStyle(color: Colors.deepPurpleAccent),),
-      onTap: (){},
+      onTap: loginWithGoogleButton,
     ),
     );
+  }
+
+  loginWithGoogleButton() async {
+     var state = Provider.of<AuthState>(context, listen: false);
+     try {
+    await state.sigInWithGoogle();
+  } catch(error){
+      print(error.toString()); 
+    }
+    if (state.authStatus == AuthStatus.Logged_In){
+      Navigator.pop(context);
+      Navigator.push(context, MaterialPageRoute(builder: (ctx) => TabScreen()));
+    }
   }
 
   signUpContent(){
@@ -170,6 +206,19 @@ class _LoginScreenState extends State<LoginScreen>{
     );
   }
 
+  submitLogin() async{
+    var state = Provider.of<AuthState>(context, listen: false);
+    try {
+    await state.signInWithEmailAndPassword(context, emailController.text, passwordController.text);
+    } catch(e){
+      print(e.toString());
+    }
+    if (state.authStatus == AuthStatus.Logged_In){
+      Navigator.pop(context);
+      Navigator.push(context, MaterialPageRoute(builder: (ctx) => TabScreen()));
+    }
+  }
+
   loginButton(){
     Size mq = MediaQuery.of(context).size;
     return Container(
@@ -177,7 +226,7 @@ class _LoginScreenState extends State<LoginScreen>{
       width: 0.7 * mq.width,
        padding: EdgeInsets.only(top: 15, left: 30, right: 30, bottom: 5),
        child: TextButton(
-         onPressed: (){}, 
+         onPressed: submitLogin, 
          style: TextButton.styleFrom(
            backgroundColor: Colors.blue,
            shape: RoundedRectangleBorder(
@@ -188,7 +237,7 @@ class _LoginScreenState extends State<LoginScreen>{
     );
   }
 
-  entryField(double topp){
+  entryField(double topp, TextEditingController textEditingcontroller){
     return Padding(
             padding: EdgeInsets.only(top: topp, left: 30, right: 30, bottom: 5),
             child: Container(
@@ -202,6 +251,7 @@ class _LoginScreenState extends State<LoginScreen>{
               )
               ),
               child: TextField(
+                controller: textEditingcontroller,
                 keyboardType: TextInputType.emailAddress,
                 style: TextStyle(
           fontStyle: FontStyle.normal,
@@ -274,7 +324,8 @@ class _LoginScreenState extends State<LoginScreen>{
             SizedBox(height: 40,),
             getTheApp(),
             SizedBox(height: 20,),
-            footer()
+            footer(),
+            SizedBox(height: 20,)
           ],
         ),
       )

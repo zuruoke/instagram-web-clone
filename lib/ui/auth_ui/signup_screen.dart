@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:instagram_clone/state/auth_state.dart';
-import 'package:instagram_clone/ui/tab_screen.dart';
+import 'package:instagram_clone/ui/auth_ui/add_profile_pic.dart';
 import 'package:instagram_clone/utils/enum.dart';
 import 'package:provider/provider.dart';
 
@@ -77,7 +77,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(5.0),),
          ),
-         child: Text("Log In", style: TextStyle(color: Colors.white),)
+         child: Text("Sign Up", style: TextStyle(color: Colors.white),)
          ),
     );
   }
@@ -90,7 +90,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
       print(error.toString());
     }
     if (state.authStatus == AuthStatus.Logged_In){
-      Navigator.push(context, MaterialPageRoute(builder: (ctx) => TabScreen()));
+      Navigator.pop(context);
+      Navigator.push(context, MaterialPageRoute(builder: (ctx) => AddProfilePicScreen(name: usernameController.text)));
     }
   }
 

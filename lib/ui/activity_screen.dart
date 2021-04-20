@@ -2,6 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ActivityScreen extends StatefulWidget{
+  final String currentUserId;
+
+  ActivityScreen({this.currentUserId});
 
   _ActivityScreenState createState() => _ActivityScreenState();
 }

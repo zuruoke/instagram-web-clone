@@ -2,6 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class SearchScreen extends StatefulWidget{
+  final String currentUserId;
+
+  SearchScreen({this.currentUserId});
 
   _SearchScreenState createState() => _SearchScreenState();
 }
