@@ -1,16 +1,11 @@
 import 'package:flutter/cupertino.dart';
 
-class AddScreen extends StatefulWidget{
-
-  _AddScreenState createState() => _AddScreenState();
-}
-
-class _AddScreenState extends State<AddScreen> {
+class AddScreen extends StatelessWidget{
 
   @override
   Widget build(BuildContext context){
     return Center(
-      child: Text('data_AddScreen'),
+      child: Text('data_AddScreens'),
     );
   }
 }

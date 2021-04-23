@@ -1,7 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:instagram_clone/state/auth_state.dart';
+import 'package:instagram_clone/ui/auth_ui/login_screen.dart';
+import 'package:instagram_clone/utils/bottom_sheet.dart';
+import 'package:instagram_clone/utils/enum.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget{
+  final String currentUserId;
+
+  HomeScreen({this.currentUserId});
 
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -44,9 +52,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   profileContainer(){
+    Size mq = MediaQuery.of(context).size;
     return Column(
       children: [
-        Stack(
+        GestureDetector(
+          onTap: () {
+             buildModalSheet(context, mq, where: 'stories');
+          },
+          child: Stack(
       children: [
         Container(
           width: 80, height: 80,
@@ -68,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
         //   )),
         // ),
       ],
-    ),
+    ),),
     SizedBox(height: 15,),
     Text("Your Story")
       ],
@@ -142,15 +155,14 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  simplicity(){
-    return Row(
-      children: [
-        IconButton(icon: Icon(Icons.favorite_border_outlined), onPressed: null),
-        IconButton(icon: Icon(Icons.messenger_outline_sharp), onPressed: null),
-        
-      ],
-    );
-  }
+  logOut() async{
+    var state = Provider.of<AuthState>(context, listen: false);
+    await state.signOutWithEmailAndPassword();
+    if (state.authStatus == AuthStatus.Not_Logged_In){
+      Navigator.pop(context);
+      Navigator.push(context, MaterialPageRoute(builder: (ctx) => LoginScreen()));
+    }
+     }
   
 
   @override
@@ -175,7 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Padding(
             padding: EdgeInsets.only(right: 10),
             child: IconButton(icon: Icon(Icons.send_outlined, size: 35, color: Colors.black,),
-          onPressed: (){}
+          onPressed: logOut
           )),
         ],
     ),
