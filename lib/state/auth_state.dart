@@ -9,12 +9,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthState extends AppState{
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  AuthStatus authStatus;
+  late AuthStatus authStatus;
   final GoogleSignIn googleSignIn = GoogleSignIn();
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
-  String userUid;
-  String profilePicUrl;
-  String currentUserUsername;
+  late String userUid;
+  String? profilePicUrl;
+  String? currentUserUsername;
   var screenHeight;
   var screenWidth;
 
@@ -25,31 +25,31 @@ class AuthState extends AppState{
   }
 
   getUserCredentials() {
-    User user = _auth.currentUser;
+    User user = _auth.currentUser!;
     userUid = user.uid;
     _firebaseFirestore.collection('users').doc(user.uid).get()
               .then((value) {
-                profilePicUrl = value.data()['photo'];
-                currentUserUsername = value.data()['username'];
+                profilePicUrl = value.data()!['photo'];
+                currentUserUsername = value.data()!['username'];
       });
 
   }
 
   Future<void> getUserUid() async{
-    User user = _auth.currentUser;
+    User user = _auth.currentUser!;
     userUid = user.uid;
   }
 
-  Future<void> getUserProfileUrlandUsername({String id}) async{
+  Future<void> getUserProfileUrlandUsername({String? id}) async{
     if (id == null){
       getUserUid();
       DocumentSnapshot snapshot = await _firebaseFirestore.collection('users').doc(userUid).get();
-      profilePicUrl =  snapshot.data()['photo'];
-      currentUserUsername = snapshot.data()['username'];
+      profilePicUrl =  snapshot.data()!['photo'];
+      currentUserUsername = snapshot.data()!['username'];
     } else {
       DocumentSnapshot snapshot = await _firebaseFirestore.collection('users').doc(id).get();
-      profilePicUrl =  snapshot.data()['photo'];
-      currentUserUsername = snapshot.data()['username'];
+      profilePicUrl =  snapshot.data()!['photo'];
+      currentUserUsername = snapshot.data()!['username'];
   }
   }
 
@@ -57,7 +57,7 @@ class AuthState extends AppState{
     try {
       loading = true;
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(email: email, password: password);
-      User user = userCredential.user;
+      User? user = userCredential.user;
       if (user != null){
         authStatus = AuthStatus.Logged_In;
         saveSharedPreference(uid: user.uid);
@@ -74,7 +74,7 @@ class AuthState extends AppState{
     try {
       loading = true;
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(email: email, password: password);
-      User user = userCredential.user;
+      User? user = userCredential.user;
       if (user != null){
         authStatus = AuthStatus.Logged_In;
         saveUserInfo(uid: user.uid, email: email, username: args);
@@ -99,11 +99,11 @@ class AuthState extends AppState{
     try {
       loading = true;
       final UserCredential userCredential = await _auth.signInWithPopup(authProvider);
-      User user = userCredential.user;
+      User? user = userCredential.user;
 
       if (user != null){
         authStatus = AuthStatus.Logged_In;
-        saveUserInfo(uid: user.uid, email: user.email, username: user.displayName);
+        saveUserInfo(uid: user.uid, email: user.email!, username: user.displayName!);
         saveSharedPreference(uid: user.uid);
       }
 
@@ -120,7 +120,7 @@ class AuthState extends AppState{
     removeSharedPreference();
   }
 
-  void saveUserInfo({String uid, String username, String email}){
+  void saveUserInfo({required String uid, required String username, required String email}){
     final userRef = _firebaseFirestore.collection('users').doc(uid);
     userRef.set({
         'id': uid,
@@ -132,12 +132,12 @@ class AuthState extends AppState{
     });
   }
 
-  Future<void> saveSharedPreference({String uid}) async{
+  Future<void> saveSharedPreference({required String uid}) async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
     DocumentSnapshot snapshot = await _firebaseFirestore.collection('users').doc(uid).get();
     prefs.setString('userId', uid);
-    prefs.setString('currentUserProfilePicUrl', snapshot.data()['photo']);
-    prefs.setString('currentUserUsername', snapshot.data()['username']);
+    prefs.setString('currentUserProfilePicUrl', snapshot.data()!['photo']);
+    prefs.setString('currentUserUsername', snapshot.data()!['username']);
   }
 
   removeSharedPreference() async{

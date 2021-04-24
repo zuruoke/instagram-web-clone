@@ -18,12 +18,12 @@ class InstagramCloneApp extends StatefulWidget{
 }
 
 class _InstagramCloneAppState extends State<InstagramCloneApp> {
-  String uid;
+  String? uid;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   getUserUid() async {
-    User user = _auth.currentUser;
+    User? user = _auth.currentUser;
     if(user != null){
       setState(() {
         uid = user.uid;         

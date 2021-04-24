@@ -17,8 +17,8 @@ class TabScreen extends StatefulWidget{
 
 
 class _TabScreenState extends State<TabScreen>{
-  String _uid;
-  PageController _pageController;
+  late final String _uid;
+  PageController? _pageController;
   int pageIndex = 0;
   var _selected = 0;
 
@@ -29,7 +29,7 @@ class _TabScreenState extends State<TabScreen>{
   }
 
   onTapChange(int pageIndex){
-     _pageController.animateToPage(pageIndex, duration: const Duration(microseconds: 400 ), curve: Curves.ease);
+     _pageController!.animateToPage(pageIndex, duration: const Duration(microseconds: 400 ), curve: Curves.ease);
       setState(() {
               _selected = pageIndex;
             });

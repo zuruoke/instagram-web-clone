@@ -2,8 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
 
-createPostInFirestore(
-  {String uid, String caption, String username, String postPhotourl, String userProfilePicUrl, String postId, String collectionName}) {
+createPostInFirestore({
+      required String uid, 
+      required String caption, 
+      required String username, 
+      required String postPhotourl, 
+      String? userProfilePicUrl, 
+      required String postId, 
+      required String collectionName}) {
   _firebaseFirestore.collection(collectionName).doc(uid).collection('userPosts').doc(postId).set({
     'postId' : postId,
     'postOwneriId': uid,
@@ -19,8 +25,14 @@ createPostInFirestore(
     }
   
   
-  createPostInFirestoreForAll(
-  {String uid, String caption, String username, String postPhotourl, String userProfilePicUrl, String postId, String collectionName}) {
+  createPostInFirestoreForAll({
+          required String uid, 
+          required String caption, 
+          required String username, 
+          required String postPhotourl, 
+          String? userProfilePicUrl, 
+          required String postId, 
+          required String collectionName}) {
   _firebaseFirestore.collection(collectionName).doc(postId).set({
     'postId' : postId,
     'postOwneriId': uid,

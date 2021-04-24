@@ -8,9 +8,9 @@ import 'package:instagram_clone/ui/tab_screen.dart';
 class UploadScreen extends StatefulWidget{
 
   final PickedFile pickedFile;
-  final String where;
+  final String? where;
 
-  UploadScreen({this.pickedFile, this.where});
+  UploadScreen({required this.pickedFile, this.where});
 
 
   _UploadScreenState createState() => _UploadScreenState();
@@ -54,7 +54,7 @@ class _UploadScreenState extends State<UploadScreen> {
             ),
         ],
       ),
-      body: widget.pickedFile != null ? SingleChildScrollView(
+      body: SingleChildScrollView(
         child: Stack(
           children: [
             Container(
@@ -65,7 +65,7 @@ class _UploadScreenState extends State<UploadScreen> {
             ),
             ), 
           ],),
-      ) : Container() 
+      )
     );  
   }
   

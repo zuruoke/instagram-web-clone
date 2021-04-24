@@ -4,23 +4,23 @@ import 'package:instagram_clone/ui/upload_screen.dart';
 
 final picker = ImagePicker();
 
-  pickImageFromGallery(BuildContext context, {String where}) async {
+  pickImageFromGallery(BuildContext context, {String? where}) async {
     //Navigator.of(context).pop();
-    final PickedFile imageFile = await picker.getImage(source: ImageSource.gallery);
+    final PickedFile imageFile = (await picker.getImage(source: ImageSource.gallery))!;
     // if (imageFile != null){
     //   return UploadScreen(pickedFile: imageFile,);
     // }
     Navigator.push(context, MaterialPageRoute(builder: (context) => UploadScreen(pickedFile: imageFile, where: where)));
   }
 
-takeImageFromCamera(BuildContext context, {String where}) async {
+takeImageFromCamera(BuildContext context, {String? where}) async {
   //Navigator.of(context).pop();
-  final PickedFile imageFile = await picker.getImage(source: ImageSource.camera);
+  final PickedFile imageFile = (await picker.getImage(source: ImageSource.camera))!;
   //return UploadScreen(pickedFile: imageFile,);
    Navigator.push(context, MaterialPageRoute(builder: (context) => UploadScreen(pickedFile: imageFile, where: where)));
 }
 
-buildModalSheet(BuildContext context, Size mq, {String where}){
+buildModalSheet(BuildContext context, Size mq, {String? where}){
       showModalBottomSheet(
           context: context,
           backgroundColor: const Color.fromRGBO(255, 255, 255 , 1),
@@ -30,7 +30,7 @@ buildModalSheet(BuildContext context, Size mq, {String where}){
           builder: (context) => buildBottomModalSheet(context, mq.height * 0.25, where: where));
     }
 
-    buildBottomModalSheet(BuildContext context, double height, {String where}) {
+    buildBottomModalSheet(BuildContext context, double height, {String? where}) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 10),
       height: height,

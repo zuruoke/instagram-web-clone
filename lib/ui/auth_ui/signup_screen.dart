@@ -11,9 +11,9 @@ class SignUpScreen extends  StatefulWidget{
 
 class _SignUpScreenState extends State<SignUpScreen> {
 
-  TextEditingController usernameController;
-  TextEditingController emailController;
-  TextEditingController passwordController;
+  late TextEditingController usernameController;
+  late TextEditingController emailController;
+  late TextEditingController passwordController;
 
   @override
   void initState() { 
