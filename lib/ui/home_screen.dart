@@ -1,20 +1,43 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:instagram_clone/models/post.dart';
 import 'package:instagram_clone/state/auth_state.dart';
 import 'package:instagram_clone/ui/auth_ui/login_screen.dart';
 import 'package:instagram_clone/utils/bottom_sheet.dart';
 import 'package:instagram_clone/utils/enum.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget{
-  final String currentUserId;
 
-  HomeScreen({this.currentUserId});
+  final String currentUserId;
+  
+
+  HomeScreen({required this.currentUserId});
 
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  late final String userUid;
+  late List<PostItem> post;
+  final CollectionReference ref = FirebaseFirestore.instance.collection('allPosts');
+
+  getUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userUid = prefs.getString('userId')!;
+    });
+  }
+
+  @override
+  void initState() { 
+    getUserId();
+    getTimeline();
+    super.initState();
+    
+  }
 
   stories(){
     Size mq = MediaQuery.of(context).size;
@@ -108,51 +131,38 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  postsContainer(){
-    return Container();
+  getTimeline() async {
+    QuerySnapshot snapshot = 
+    await FirebaseFirestore.instance
+        .collection('allPosts')
+        .orderBy('timestamp', descending: true)
+        .get();
+
+    List<PostItem> post =
+        snapshot.docs.map((doc) => PostItem.fromDocument(doc)).toList();
+    setState(() {
+      this.post = post;
+    });
   }
 
-  buildContentScreen(){
-    //Size mq = MediaQuery.of(context).size;
-    return Column(
-       children: [
-            ListTile(
-              leading: 
-                Padding(padding: EdgeInsets.only(left: 10),
-                child: CircleAvatar(backgroundColor: Colors.black),
-              ),
-              title: Text("rap"),
-              trailing: IconButton(
-                icon: Icon(Icons.linear_scale_sharp, color: Colors.black,),
-                onPressed: (){},
-              ),
-            ),
-            SizedBox(height: 15,),
-            Container(
-              height: 300,
-              decoration: BoxDecoration(
-                color: Colors.black
-              ),
-            ),
-            //SizedBox(height: 5,),
-            ListTile(
-              leading: IconButton(
-                icon: Icon(Icons.favorite_border_outlined, 
-                          size: 30, color: Colors.black,), 
-                onPressed: null),
-              title: Row( children: [ 
-                  IconButton(
-                    icon: Icon(Icons.messenger_outline_sharp,
-                               size: 30, color: Colors.black,), 
-                    onPressed: null)]),
-              trailing: IconButton(
-                onPressed: null,
-                icon: Icon(Icons.system_update_tv_rounded, 
-                  color: Colors.black , size:30),
-              ),
-            ),
-      ],
-    );
+  getPosts (){
+    return StreamBuilder(
+      stream: ref.orderBy('timestamp', descending: true).snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot){
+        if (snapshot.hasData){
+          List<PostItem> posts = [];
+          snapshot.data!.docs.forEach((QueryDocumentSnapshot doc){
+            posts.add(PostItem.fromDocument(doc));
+          });
+          return Column(
+            children: posts,
+          );
+        }
+        return Center(
+          child: Text("")
+        );
+      }
+      );
   }
 
   logOut() async{
@@ -191,26 +201,18 @@ class _HomeScreenState extends State<HomeScreen> {
           )),
         ],
     ),
-    body: SingleChildScrollView(
+    body: Scrollbar(
+      child: SingleChildScrollView(
       scrollDirection: Axis.vertical,
         child: Column(
           children: [
             SizedBox(height: 20,),
             stories(),
             SizedBox(height: 20,),
-            Divider(),
-            SizedBox(height: 20,),
-            buildContentScreen(),
-            SizedBox(height: 50,),
-            buildContentScreen(),
-            SizedBox(height: 50,),
-            buildContentScreen(),
-            SizedBox(height: 50,),
-            buildContentScreen(),
-            SizedBox(height: 50,),
-            buildContentScreen(),
+            Divider(height: 0.0,),
+            getPosts(),
           ],
         ),),
-    );
+    ));
   }
 }

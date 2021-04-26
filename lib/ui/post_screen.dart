@@ -9,17 +9,17 @@ import 'package:uuid/uuid.dart';
 // ignore: must_be_immutable
 class PostScreen extends StatefulWidget{
   PickedFile pickedImage;
-  String where;
+  String? where;
 
-  PostScreen({this.pickedImage, this.where});
+  PostScreen({required this.pickedImage, this.where});
   
   _PostScreenState createState() => _PostScreenState();
 }
 
 class _PostScreenState extends State<PostScreen> {
-  String userUid;
-  String profilePicUrl;
-  String currentUserUsername;
+  late final String userUid;
+  String? profilePicUrl;
+  late String currentUserUsername;
   String postId = Uuid().v4();
   TextEditingController captionController = TextEditingController();
   final String _url = "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcT_ebls-UUShLJTBsclAHFxv2QYxDJIQdre45gDkFn5FEkC7JvI&usqp=CAU";
@@ -34,15 +34,15 @@ class _PostScreenState extends State<PostScreen> {
   getUserValues() async {
     SharedPreferences _prefs = await SharedPreferences.getInstance();
     setState(() {
-      userUid = _prefs.getString('userId');
-      profilePicUrl = _prefs.getString('currentUserProfilePicUrl') ?? "";
-      currentUserUsername = _prefs.getString('currentUserUsername');      
+      userUid = _prefs.getString('userId')!;
+      profilePicUrl = _prefs.getString('currentUserProfilePicUrl');
+      currentUserUsername = _prefs.getString('currentUserUsername')!;      
     });
   }
   
   @override
   void dispose() { 
-    captionController?.dispose();
+    captionController.dispose();
     super.dispose();
   }
 
@@ -67,7 +67,7 @@ class _PostScreenState extends State<PostScreen> {
       }
       setState(() {
         captionController.clear();
-        widget.pickedImage = null;
+        //widget.pickedImage = null;
         postId = Uuid().v4();        
       });
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => TabScreen(),));
@@ -96,7 +96,7 @@ class _PostScreenState extends State<PostScreen> {
       }
       setState(() {
         captionController.clear();
-        widget.pickedImage = null;
+        //widget.pickedImage = null;
         postId = Uuid().v4();        
       });
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => TabScreen(),));
@@ -166,7 +166,7 @@ class _PostScreenState extends State<PostScreen> {
         leading: Padding(
           padding: EdgeInsets.only(bottom: 10),
           child: CircleAvatar(
-          backgroundImage: profilePicUrl != null ? NetworkImage(profilePicUrl) : NetworkImage(_url),
+          backgroundImage: profilePicUrl != null ? NetworkImage(profilePicUrl!) : NetworkImage(_url),
           radius: 20,
         )),
         title: textField(),

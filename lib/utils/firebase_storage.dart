@@ -12,7 +12,7 @@ final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
   });
 }
 
-Future<String> uploadImageToFirebaseStorage({String id, PickedFile img, String folder}) async {
+Future<String> uploadImageToFirebaseStorage({required String id, required PickedFile img, required String folder}) async {
   final String path = "/$id.jpg";
   final Reference ref =  _firebaseStorage.ref().child(folder);
   UploadTask uploadTask = ref.child(path).putData(await img.readAsBytes());

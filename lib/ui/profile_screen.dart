@@ -1,26 +1,152 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:instagram_clone/models/post.dart';
+import 'package:instagram_clone/models/post_tile.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget{
   final String currentUserId;
 
-  ProfileScreen({this.currentUserId});
+  ProfileScreen({required this.currentUserId});
+  
 
   _ProfileScreenState createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-
   String selected = 'grid';
+  late String userId;
+  String? profilePicUrl;
+  late String currentUserUsername;
+  late String postOwnerUsername;
+  late String postOwnerPhotoUrl;
+  var isFollowing = false;
+  var followingCount = 0;
+  var followersCount = 0;
+  List<PostItem> allPosts = [];
+  final CollectionReference postsRef = FirebaseFirestore.instance.collection('posts');
+  final CollectionReference userRef = FirebaseFirestore.instance.collection('users');
+  final followersRef = FirebaseFirestore.instance.collection('followers');
+  final followingRef = FirebaseFirestore.instance.collection('following');
+
+  getUserId() async {
+    SharedPreferences _prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userId =  _prefs.getString('userId')!;
+      checkIsFollowing(userId);      
+    });  
+  }
+
+  getPostOwnerData() async{
+    DocumentSnapshot snapshot = await userRef.doc(widget.currentUserId).get();
+    setState(() {
+      postOwnerPhotoUrl = snapshot.data()!['photo'];
+      postOwnerUsername = snapshot.data()!['username'];      
+    });
+    
+  }
+
+
+  getAllPosts() async {
+    QuerySnapshot snapshot = await postsRef.doc(widget.currentUserId).collection('userPosts').orderBy('timestamp', descending: true).get();
+    setState(() {
+      allPosts =
+          snapshot.docs.map((QueryDocumentSnapshot doc) => PostItem.fromDocument(doc)).toList();
+    });
+  }
+
+   getUserValues() async {
+    SharedPreferences _prefs = await SharedPreferences.getInstance();
+    _prefs.reload();
+    profilePicUrl = _prefs.getString('currentUserProfilePicUrl');
+    currentUserUsername = _prefs.getString('currentUserUsername')!;     
+  }
+
+  getFollowersCount() async {
+    QuerySnapshot snapshot = await followersRef.doc(widget.currentUserId).collection('userFollowers').get();
+    setState(() {
+      followersCount = snapshot.docs.length;      
+    });
+  }
+
+  getFollowingCount() async {
+    QuerySnapshot snapshot = await followingRef.doc(widget.currentUserId).collection('userFollowing').get();
+    setState(() {
+      followingCount = snapshot.docs.length;      
+    });
+  }
+
+  handleFollow(){
+    setState(() {
+      isFollowing = true;
+      followersCount += 1;     
+    });
+
+    followersRef.doc(widget.currentUserId).collection('userFollowers').doc(userId).set({});
+    followingRef.doc(userId).collection('userFollowing').doc(widget.currentUserId).set({});
+  }
+
+
+  handleUnfollow(){
+    setState(() {
+      isFollowing = false;
+      followersCount -= 1;
+        
+    });
+    followersRef.doc(widget.currentUserId)
+                .collection('userFollowers')
+                .doc(userId).get()
+                .then((doc) {
+                  if(doc.exists){
+                    doc.reference.delete();
+                  }
+                });
+
+    followingRef.doc(userId)
+                .collection('userFollowing')
+                .doc(widget.currentUserId).get()
+                .then((doc) {
+                  if (doc.exists){
+                    doc.reference.delete();
+                  }
+                });
+  }
+
+  checkIsFollowing(String userUid) async {
+    DocumentSnapshot doc = await followersRef.doc(widget.currentUserId).collection('userFollowers').doc(userUid).get();
+    setState(() {
+      isFollowing = doc.exists;      
+    });
+  }
+
+  @override
+  void initState() { 
+    getUserId();
+    getAllPosts();
+    //getPostOwnerData();
+    getFollowersCount();
+    getFollowingCount();
+    super.initState();
+    
+  }
+
 
   _buildAppBar(){
+    bool isCurrentUser = (userId == widget.currentUserId);
     return AppBar(
-      leading: IconButton(
+      leading: isCurrentUser ? IconButton(
         onPressed: null,
         icon: Icon(Icons.adjust_rounded, size: 35, color: Colors.black,
+      ),
+        ) : IconButton(
+        onPressed: () {
+          Navigator.pop(context);
+        },
+        icon: Icon(Icons.arrow_back_ios_rounded, size: 35, color: Colors.black,
         ),
       ),
-      title: Text('zuruokeokafor',style: TextStyle(fontWeight: FontWeight.bold),),
+      title: Text(postOwnerUsername,style: TextStyle(fontWeight: FontWeight.bold),),
       centerTitle: true,
       actions: [
         IconButton(
@@ -35,6 +161,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
 
   topScreen(){
+    bool isCurrentUser = (userId == widget.currentUserId);
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,7 +177,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           height: 100, width: 120,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.black
+            color: Colors.black,
+            image: DecorationImage(
+              image: NetworkImage(postOwnerPhotoUrl)
+            )
           ),
         ),
         SizedBox(width: 50,),
@@ -59,7 +189,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
           children: [
-            Text('zuruokeokafor', style: TextStyle(fontSize: 30),),
+            Text(postOwnerUsername, style: TextStyle(fontSize: 30),),
           SizedBox(height: 10,),
           Container(
             width: 280, height: 30,
@@ -71,14 +201,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     borderRadius: BorderRadius.circular(5.0),
                     side: BorderSide(color: Colors.grey)
             ),),
-            onPressed: null,
-            child: Text('Edit Profile', style: TextStyle(
-              fontWeight: FontWeight.bold, 
-              fontSize: 20, color: 
-              Colors.black),),
-          )
-          )
-          
+            onPressed: isCurrentUser ? null : isFollowing ? handleUnfollow : handleFollow,
+            child: isCurrentUser ? Text('Edit Profile', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black),) :
+                   isFollowing ? Text('Unfollow', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black),) :
+                   Text('Follow', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black),)
+          ),
+            )
           ],
         )
       ],
@@ -86,7 +214,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       SizedBox(height: 30,),
       Padding(
         padding: EdgeInsets.only(left: 30),
-        child: Text('Okafor Zuruoke', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),)),
+        child: Text(postOwnerUsername.toUpperCase(), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),)),
       SizedBox(height: 10,),
       Padding(
         padding: EdgeInsets.only(left: 30),
@@ -102,9 +230,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        Text('12.5k', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
-        Text('36M', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
-        Text("  3954", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),)
+        Text('${allPosts.length}', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
+        Text('$followersCount', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
+        Text('$followingCount', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),)
       ],
     ),
     Padding(padding: EdgeInsets.only(top:5)),
@@ -167,6 +295,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  buildGridTile(){
+    List<GridTile> gridTiles = [];
+    allPosts.forEach((posts) { 
+      gridTiles.add(
+        GridTile(
+          child: PostTile(post: posts)
+        ));
+    });
+    return GridView.count(
+      crossAxisCount: 3,
+      childAspectRatio: 1.0,
+      mainAxisSpacing: 1.5,
+      crossAxisSpacing: 1.5,
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      children: gridTiles,
+      );
+  }
+
   photosOfYouLayout(){
     return Container();
   }
@@ -176,23 +323,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   listStyle(){
-    return Column(
+    return Column( 
+      children: [
+      Divider(thickness: 0.24, color: Colors.black,),
+      Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Divider(thickness: 0.24, color: Colors.black,),
-        listContentScreen("zuruokeokafor"),
-        SizedBox(height: 40,),
-        listContentScreen("zuruokeokafor"),
-        SizedBox(height: 40,),
-        listContentScreen("zuruokeokafor"),
-        SizedBox(height: 40,),
-        listContentScreen("zuruokeokafor"),
-        SizedBox(height: 40,),
-        listContentScreen("zuruokeokafor"),
-        SizedBox(height: 40,),
+      children: 
+        allPosts,
+    ),
       ],
     );
+
   }
 
   gridStyle(){
@@ -222,7 +364,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
            width: 0.330 * mq.width,
           height: 160,
           decoration: BoxDecoration(
-            color: Colors.black
+            color: Colors.black,
           ),
         ),
         SizedBox(width: 2,),
@@ -289,6 +431,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context){
+    getUserValues();
+    getPostOwnerData();
+
     return Scaffold(
       appBar: _buildAppBar(),
       body: SingleChildScrollView(

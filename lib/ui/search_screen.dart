@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class SearchScreen extends StatefulWidget{
   final String currentUserId;
 
-  SearchScreen({this.currentUserId});
+  SearchScreen({required this.currentUserId});
 
   _SearchScreenState createState() => _SearchScreenState();
 }

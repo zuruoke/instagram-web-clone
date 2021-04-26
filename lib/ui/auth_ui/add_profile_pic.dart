@@ -8,21 +8,21 @@ import 'package:provider/provider.dart';
 
 
 class AddProfilePicScreen extends  StatefulWidget{
-  final String name;
+  final String? name;
 
-  AddProfilePicScreen({this.name});
+  AddProfilePicScreen({@required this.name});
 
   _AddProfilePicScreenState createState() => _AddProfilePicScreenState();
 }
 
 class _AddProfilePicScreenState extends State<AddProfilePicScreen> {
-  String _uid;
-  PickedFile pickedImage;
+  late String _uid;
+  PickedFile? pickedImage;
   final picker = ImagePicker();
 
   Future captureImageFromCamera() async {
     Navigator.of(context).pop();
-    final PickedFile imageFile = await picker.getImage(source: ImageSource.camera);
+    final PickedFile? imageFile = await picker.getImage(source: ImageSource.camera);
     setState(() {
       pickedImage = imageFile;
     });
@@ -30,7 +30,7 @@ class _AddProfilePicScreenState extends State<AddProfilePicScreen> {
 
   Future pickImageFromGallery() async {
     Navigator.of(context).pop();
-    final PickedFile imageFile = await picker.getImage(source: ImageSource.gallery);
+    final PickedFile? imageFile = await picker.getImage(source: ImageSource.gallery);
     setState(() {
       pickedImage = imageFile;
     });
@@ -129,7 +129,7 @@ class _AddProfilePicScreenState extends State<AddProfilePicScreen> {
   }
 
   updateUrl() async {
-    String url = await uploadImageToFirebaseStorage(id: _uid, img: pickedImage, folder: 'ProfilePictures');
+    String url = await uploadImageToFirebaseStorage(id: _uid, img: pickedImage!, folder: 'ProfilePictures');
     uploadImageUrl(_uid, url);
   }
 
