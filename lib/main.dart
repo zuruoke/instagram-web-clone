@@ -26,7 +26,8 @@ class _InstagramCloneAppState extends State<InstagramCloneApp> {
     User? user = _auth.currentUser;
     if(user != null){
       setState(() {
-        uid = user.uid;         
+        uid = user.uid; 
+                
       });
   }
   }
