@@ -19,8 +19,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late String userId;
   String? profilePicUrl;
   late String currentUserUsername;
-  late String postOwnerUsername;
-  late String postOwnerPhotoUrl;
+  String? postOwnerUsername;
+  String? postOwnerPhotoUrl;
   var isFollowing = false;
   var followingCount = 0;
   var followersCount = 0;
@@ -29,6 +29,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final CollectionReference userRef = FirebaseFirestore.instance.collection('users');
   final followersRef = FirebaseFirestore.instance.collection('followers');
   final followingRef = FirebaseFirestore.instance.collection('following');
+  final activityFeedRef = FirebaseFirestore.instance.collection('feed');
 
   getUserId() async {
     SharedPreferences _prefs = await SharedPreferences.getInstance();
@@ -85,6 +86,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     followersRef.doc(widget.currentUserId).collection('userFollowers').doc(userId).set({});
     followingRef.doc(userId).collection('userFollowing').doc(widget.currentUserId).set({});
+    addFollowToFeed();
   }
 
 
@@ -111,6 +113,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     doc.reference.delete();
                   }
                 });
+    removeFollowFromFeed();
   }
 
   checkIsFollowing(String userUid) async {
@@ -120,11 +123,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
+  addFollowToFeed(){
+    activityFeedRef.doc(widget.currentUserId).collection('feedItems').doc(userId).set({
+      'type': 'follow',
+      'timestamp': DateTime.now(),
+      'userId': userId,
+      'userProfileUrl': profilePicUrl,
+      'username': currentUserUsername,
+    });
+  }
+
+  removeFollowFromFeed(){
+     activityFeedRef.doc(widget.currentUserId).collection('feedItems').doc(userId).get()
+        .then((doc){
+            if (doc.exists){
+              doc.reference.delete();
+            }
+        });
+  }
+
   @override
   void initState() { 
     getUserId();
     getAllPosts();
-    //getPostOwnerData();
+    getPostOwnerData();
     getFollowersCount();
     getFollowingCount();
     super.initState();
@@ -146,7 +168,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         icon: Icon(Icons.arrow_back_ios_rounded, size: 35, color: Colors.black,
         ),
       ),
-      title: Text(postOwnerUsername,style: TextStyle(fontWeight: FontWeight.bold),),
+      title: Text(postOwnerUsername!,style: TextStyle(fontWeight: FontWeight.bold),),
       centerTitle: true,
       actions: [
         IconButton(
@@ -179,7 +201,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             shape: BoxShape.circle,
             color: Colors.black,
             image: DecorationImage(
-              image: NetworkImage(postOwnerPhotoUrl)
+              image: NetworkImage(postOwnerPhotoUrl!)
             )
           ),
         ),
@@ -189,7 +211,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
           children: [
-            Text(postOwnerUsername, style: TextStyle(fontSize: 30),),
+            Text(postOwnerUsername!, style: TextStyle(fontSize: 30),),
           SizedBox(height: 10,),
           Container(
             width: 280, height: 30,
@@ -214,7 +236,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       SizedBox(height: 30,),
       Padding(
         padding: EdgeInsets.only(left: 30),
-        child: Text(postOwnerUsername.toUpperCase(), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),)),
+        child: Text(postOwnerUsername!.toUpperCase(), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),)),
       SizedBox(height: 10,),
       Padding(
         padding: EdgeInsets.only(left: 30),
@@ -432,7 +454,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context){
     getUserValues();
-    getPostOwnerData();
+    //getPostOwnerData();
 
     return Scaffold(
       appBar: _buildAppBar(),

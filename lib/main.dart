@@ -6,11 +6,14 @@ import 'package:instagram_clone/ui/auth_ui/login_screen.dart';
 import 'package:instagram_clone/ui/tab_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(InstagramCloneApp());
+  runApp(
+    InstagramCloneApp()
+  );
 }
 
 class InstagramCloneApp extends StatefulWidget{
@@ -19,6 +22,7 @@ class InstagramCloneApp extends StatefulWidget{
 
 class _InstagramCloneAppState extends State<InstagramCloneApp> {
   String? uid;
+  String? userUid;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -29,13 +33,20 @@ class _InstagramCloneAppState extends State<InstagramCloneApp> {
         uid = user.uid; 
                 
       });
-  }
+      }
+    }
+
+  getUserCachedId() async {
+    SharedPreferences _prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userUid = _prefs.getString('userId');      
+    });
   }
 
 
   @override
   void initState() { 
-    getUserUid();
+     getUserCachedId();
     super.initState();
     
   }
@@ -53,8 +64,9 @@ class _InstagramCloneAppState extends State<InstagramCloneApp> {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primaryColor: Colors.white,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: uid != null ? TabScreen() : LoginScreen(),
+      home: userUid != null ? TabScreen() : LoginScreen(),
     ));
   } 
 

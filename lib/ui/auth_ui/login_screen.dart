@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -16,6 +17,9 @@ class _LoginScreenState extends State<LoginScreen>{
 
   late TextEditingController emailController;
   late TextEditingController passwordController;
+  final _focusPassword = FocusNode();
+  bool emailValidated = false;
+  bool passwordValidated = false;
 
   @override
   void initState() { 
@@ -28,6 +32,7 @@ class _LoginScreenState extends State<LoginScreen>{
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
+    _focusPassword.dispose();
     super.dispose();
   }
 
@@ -50,18 +55,19 @@ class _LoginScreenState extends State<LoginScreen>{
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(height: 20,),
-          Text("          Instagram",
+          Align(
+            alignment: Alignment.topCenter,
+            child: Text("Instagram",
             style:
               TextStyle(
                 fontSize: 35, fontStyle: FontStyle.italic, color: Colors.black
-              )),
-        entryField(40, emailController),
-        entryField(5, passwordController),
+              )),),
+        entryField(40, emailController, "email", false, true),
+        entryField(5, passwordController, "password", true, false),
         state.isLoading ? SpinKitPouringHourglass( color: Colors.blue,) : loginButton(),
         SizedBox(height: 30,),
         Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             SizedBox(width: 30),
             Padding(
@@ -75,8 +81,8 @@ class _LoginScreenState extends State<LoginScreen>{
                 )
               ),
             ),),
-            Padding(padding: EdgeInsets.only(left: 15, right: 15, bottom: 20),
-              child: Text('OR', style: TextStyle(color: Colors.grey)) ,
+            Padding(padding: EdgeInsets.only(left: 15, right: 15, top: 10),
+                child: Text('OR', style: TextStyle(color: Colors.grey)),
             ),
             Padding(
               padding: EdgeInsets.only(top: 8),
@@ -104,28 +110,26 @@ class _LoginScreenState extends State<LoginScreen>{
   }
 
   resetPassword(){
-    Size mq = MediaQuery.of(context).size;
-    return Padding(
-      padding: EdgeInsets.only(left: 0.231 * mq.width, right: 0.231 * mq.width ),
-      child: InkWell(
+    //Size mq = MediaQuery.of(context).size;
+    return InkWell(
         autofocus: true,
         focusColor: Colors.deepPurpleAccent,
-        child: Text('   Forgot password? ', style: TextStyle(color: Colors.black, fontSize: 12),),
+        child: Align(
+          alignment: Alignment.center,
+          child: Text('Forgot password? ', style: TextStyle(color: Colors.black, fontSize: 12),),),
       onTap: (){},
-    ),
     );
   }
 
   loginWithGoogle(){
-    Size mq = MediaQuery.of(context).size;
-    return Padding(
-    padding: EdgeInsets.only(left: 0.231 * mq.width, right: 0.231 * mq.width),
-    child: InkWell(
+    //Size mq = MediaQuery.of(context).size;
+    return InkWell(
       autofocus: true,
       focusColor: Colors.deepPurpleAccent,
-      child: Text('Log in with Google', style: TextStyle(color: Colors.deepPurpleAccent),),
+      child: Align(
+        alignment: Alignment.center,
+        child: Text('Log in with Google', style: TextStyle(color: Colors.deepPurpleAccent),)),
       onTap: loginWithGoogleButton,
-    ),
     );
   }
 
@@ -156,10 +160,11 @@ class _LoginScreenState extends State<LoginScreen>{
           )
         ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Padding(
               padding: EdgeInsets.only(left: 0.12 * mq.width),
-              child: Text("     Don't have an account? ")),
+              child: Text("Don't have an account? ")),
              Padding(
               padding: EdgeInsets.only( right: 0.12 * mq.width,),
             child: InkWell(
@@ -167,7 +172,8 @@ class _LoginScreenState extends State<LoginScreen>{
               focusColor: Colors.deepPurpleAccent,
              child: Text('Sign Up', style: TextStyle(color: Colors.blue),),
             onTap: (){
-              Navigator.push(context, MaterialPageRoute(builder: (ctx) => SignUpScreen()));
+              Navigator.push(context, MaterialPageRoute(
+                builder: (ctx) => SignUpScreen()));
             },
             ),),
           ],
@@ -181,7 +187,7 @@ class _LoginScreenState extends State<LoginScreen>{
         Text('Get the app'),
         SizedBox(height: 15),
         Row(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Padding(
               padding: EdgeInsets.only(left: 90),
@@ -206,17 +212,33 @@ class _LoginScreenState extends State<LoginScreen>{
     );
   }
 
+  void snackBar(String text) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      duration: const Duration(seconds: 2),
+      shape: const RoundedRectangleBorder(
+          borderRadius: const BorderRadius.only(
+              topRight: const Radius.circular(15),
+              topLeft: const Radius.circular(15))),
+      content: Text(
+        text,
+        style: const TextStyle(
+            fontWeight: FontWeight.w700, color: Colors.black, fontSize: 16),
+      ),
+      backgroundColor: Colors.redAccent,
+    ));
+  }
+
   submitLogin() async{
     var state = Provider.of<AuthState>(context, listen: false);
-    try {
     await state.signInWithEmailAndPassword(context, emailController.text, passwordController.text);
-    } catch(e){
-      print(e.toString());
-    }
     if (state.authStatus == AuthStatus.Logged_In){
       Navigator.pop(context);
       Navigator.push(context, MaterialPageRoute(builder: (ctx) => TabScreen()));
     }
+    else {
+      snackBar(state.errorMessage!);
+    }
+    state.errorMessage = null;
   }
 
   loginButton(){
@@ -228,7 +250,7 @@ class _LoginScreenState extends State<LoginScreen>{
        child: TextButton(
          onPressed: submitLogin, 
          style: TextButton.styleFrom(
-           backgroundColor: Colors.blue,
+           backgroundColor: emailValidated && passwordValidated ? Colors.blue : Colors.blue[100], 
            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(5.0),),
          ),
@@ -237,27 +259,37 @@ class _LoginScreenState extends State<LoginScreen>{
     );
   }
 
-  entryField(double topp, TextEditingController textEditingcontroller){
+  entryField(double topp, TextEditingController textEditingcontroller, String text, bool isPassword, bool isEmail){
     return Padding(
             padding: EdgeInsets.only(top: topp, left: 30, right: 30, bottom: 5),
             child: Container(
-              height: 45,
+              height: 38,
               decoration: BoxDecoration(
               color: Colors.grey.shade100,
               borderRadius: BorderRadius.circular(3),
               border: Border.all(
                 color: Colors.grey,
-                width: 1.0,
+                width: 0.2,
               )
               ),
               child: TextField(
+                onChanged: (_value){
+                  isEmail ? checkOnChangedEmail(_value) : checkOnChangedPassword(_value);
+                },
+                onSubmitted: (_) {
+                  isEmail ? FocusScope.of(context).requestFocus(_focusPassword) : doNothingAction();
+                },
+                obscureText: isPassword,
                 controller: textEditingcontroller,
-                keyboardType: TextInputType.emailAddress,
+                keyboardType: isEmail ? TextInputType.emailAddress : TextInputType.text,
+                focusNode: isPassword ? _focusPassword : null,
                 style: TextStyle(
           fontStyle: FontStyle.normal,
           fontWeight: FontWeight.normal
         ),
         decoration: InputDecoration(
+           labelText: text,
+           labelStyle: TextStyle(fontSize: 13, color: Colors.grey),
            border: InputBorder.none,
            focusedBorder: OutlineInputBorder(
            ),
@@ -266,6 +298,36 @@ class _LoginScreenState extends State<LoginScreen>{
               ),
             ),
           );
+  }
+
+  void doNothingAction(){
+    print('');
+  }
+
+  checkOnChangedEmail(String _value){
+    if (_value.length > 2){
+      setState(() {
+         emailValidated = true;     
+    });
+    }
+    else if (_value.length < 2){
+      setState(() {
+        emailValidated = false;       
+      });
+    }
+  }
+
+  checkOnChangedPassword(String _value){
+    if (_value.length > 2){
+      setState(() {
+         passwordValidated = true;     
+    });
+    }
+    else if (_value.length < 2){
+      setState(() {
+        passwordValidated  = false;       
+      });
+    }
   }
 
   footer(){
@@ -282,11 +344,11 @@ class _LoginScreenState extends State<LoginScreen>{
           ],
         )),
         Padding(
-          padding: EdgeInsets.only(left: 40, right: 40, top: 15),
+          padding: EdgeInsets.only(left: 20, right: 20, top: 15),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Hashtags  '), Text("  Locations")
+              Text('Hashtags'), SizedBox(width: 20,), Text("Locations")
             ],
           ),
         ),
@@ -299,11 +361,11 @@ class _LoginScreenState extends State<LoginScreen>{
           ],
         )),
         Padding(
-          padding: EdgeInsets.only(left: 40, right: 40, top: 15),
+          padding: EdgeInsets.only(left: 20, right: 20, top: 15),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Music  '), Text("  Visual Arts")
+              Text('Music'), SizedBox(width: 20,), Text("Visual Arts")
             ],
           ),
         ),

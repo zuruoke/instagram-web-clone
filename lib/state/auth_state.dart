@@ -15,6 +15,8 @@ class AuthState extends AppState{
   late String userUid;
   String? profilePicUrl;
   String? currentUserUsername;
+  String? errorMessage;
+  String? errorMessage2;
   var screenHeight;
   var screenWidth;
 
@@ -60,15 +62,23 @@ class AuthState extends AppState{
       User? user = userCredential.user;
       if (user != null){
         authStatus = AuthStatus.Logged_In;
-        saveSharedPreference(uid: user.uid);
+        await saveSharedPreference(uid: user.uid);   
       }
       
-      } catch(error){
+      } on FirebaseAuthException catch(e){
+        loading = false;
         authStatus = AuthStatus.Not_Logged_In;
-        throw HttpException(error.toString());
+        if (e.code == 'user-not-found'){
+        errorMessage = 'OOPS! No user found for that email.';
+        }
+      else if (e.code == 'wrong-password'){
+        errorMessage = 'OOPS! Wrong password provided.';
+        }
+    } catch (error){
+        errorMessage = 'Internet connection too slow';
       }
       loading = false;
-      }
+    }
 
   Future<void> signUpWithEmailAndPassword(BuildContext context, String email, String password, String args) async{
     try {
@@ -78,12 +88,18 @@ class AuthState extends AppState{
       if (user != null){
         authStatus = AuthStatus.Logged_In;
         saveUserInfo(uid: user.uid, email: email, username: args);
-        saveSharedPreference(uid: user.uid);
+        await saveSharedPreference(uid: user.uid);
       }
 
-    } catch(error){
+    } on FirebaseAuthException catch(e){
+      loading = false;
       authStatus = AuthStatus.Not_Logged_In;
-      throw HttpException(error.toString());
+      if (e.code == 'weak-password'){
+        errorMessage2 = 'OOPS! The password provided is too weak.';
+        }
+      else if (e.code == 'email-already-in-use'){
+        errorMessage2 = 'OOPS! An account already exists for that email.';
+        }
     }
     loading = false;
   }
@@ -91,7 +107,7 @@ class AuthState extends AppState{
   Future<void> signOutWithEmailAndPassword() async{
     await _auth.signOut();
     authStatus = AuthStatus.Not_Logged_In;
-    removeSharedPreference();
+    await removeSharedPreference();
   }
 
   Future<void> sigInWithGoogle() async {
@@ -104,11 +120,12 @@ class AuthState extends AppState{
       if (user != null){
         authStatus = AuthStatus.Logged_In;
         saveUserInfo(uid: user.uid, email: user.email!, username: user.displayName!);
-        saveSharedPreference(uid: user.uid);
+        await saveSharedPreference(uid: user.uid);
+        
       }
 
     } catch (error){
-
+        loading = false;
     }
      loading = false;
   }
@@ -117,7 +134,7 @@ class AuthState extends AppState{
     await googleSignIn.signOut();
     await _auth.signOut();
     authStatus = AuthStatus.Not_Logged_In;
-    removeSharedPreference();
+    await removeSharedPreference();
   }
 
   void saveUserInfo({required String uid, required String username, required String email}){
