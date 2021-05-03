@@ -63,18 +63,19 @@ class _PostItemState extends State<PostItem> {
   int getLikeCounts;
   Map likesData;
   var _isLiked = false;
-  late String userUid;
+  String? userUid;
   String? profilePicUrl;
   late String currentUserUsername;
   final postsRef = FirebaseFirestore.instance.collection('allPosts');
   final userPostsRef = FirebaseFirestore.instance.collection('posts');
+  final activityFeedRef = FirebaseFirestore.instance.collection('feed');
 
   _PostItemState(this.getLikeCounts, this.likesData);
 
   getUserId() async {
     SharedPreferences _prefs = await SharedPreferences.getInstance();
     setState(() {
-      userUid = _prefs.getString('userId')!;      
+      userUid = _prefs.getString('userId');      
     });
   }
 
@@ -116,6 +117,7 @@ class _PostItemState extends State<PostItem> {
       likesData[userUid] = true;      
     });
     updateLikeData();
+    addLikeToFeed();
   }
 
   unlikePost(){
@@ -125,6 +127,7 @@ class _PostItemState extends State<PostItem> {
       likesData[userUid] = false;      
     });
     updateUnlikeData();
+    removeLikeToFeed();
   }
 
   controllLikePost(){
@@ -136,6 +139,31 @@ class _PostItemState extends State<PostItem> {
     } else {
       likePost();
 
+    }
+  }
+  addLikeToFeed() {
+    bool isNotPostOwner = (userUid != widget.postOwneriId);
+    if (isNotPostOwner){
+    activityFeedRef.doc(widget.postOwneriId).collection('feedItems').doc(widget.postId).set({
+      'type': 'like',
+      'postId': widget.postId,
+      'timestamp': DateTime.now(),
+      'userId': userUid,
+      'userProfileUrl': profilePicUrl,
+      'username': currentUserUsername,
+    });
+    }
+  }
+
+  removeLikeToFeed(){
+     bool isNotPostOwner = (userUid != widget.postOwneriId);
+    if (isNotPostOwner){
+      activityFeedRef.doc(widget.postOwneriId).collection('feedItems').doc(widget.postId).get()
+            .then((doc) { 
+            if (doc.exists) {
+              doc.reference.delete();
+            }
+             });
     }
   }
 
