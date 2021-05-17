@@ -78,7 +78,6 @@ class _PostItemState extends State<PostItem> {
       userUid = _prefs.getString('userId');      
     });
   }
-
    getUserValues() async {
     SharedPreferences _prefs = await SharedPreferences.getInstance();
     _prefs.reload();
