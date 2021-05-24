@@ -64,7 +64,6 @@ class _InstagramCloneAppState extends State<InstagramCloneApp> {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primaryColor: Colors.white,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: userUid != null ? TabScreen() : LoginScreen(),
     ));
